@@ -56,7 +56,7 @@ const WumpusAgent = () => {
     }, 500);
     
     return () => clearInterval(interval);
-  }, [isRunning, state]);
+  }, [isRunning, state, takeStep]);
 
   const getDeathMessage = () => {
     if (!state || state.is_alive) return null;
@@ -89,13 +89,6 @@ const WumpusAgent = () => {
       title: 'Victory!',
       description: 'The agent successfully found the gold and completed the mission!'
     };
-  };
-
-  const handleNewGame = () => {
-    setState(null);
-    setGameStarted(false);
-    setIsRunning(false);
-    initGame();
   };
 
   const deathInfo = getDeathMessage();
