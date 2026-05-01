@@ -6,7 +6,8 @@ const WumpusAgent = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
 
-  const API_URL = 'http://localhost:5000';
+  // Use environment variable, fallback to localhost for development
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   const initGame = async () => {
     try {

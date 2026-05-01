@@ -150,9 +150,6 @@ class KnowledgeBase:
         # Try to prove no wumpus
         wumpus_safe = self._prove_by_contradiction(wumpus_unsafe)
         
-        # DEBUG: Print KB reasoning
-        print(f"[ask_safe] pos=({r},{c}) | KB clauses: {len(self.clauses)} | pit_safe={pit_safe} | wumpus_safe={wumpus_safe} | result={pit_safe and wumpus_safe}")
-        
         # Cell is safe if both pit and wumpus are ruled out
         return pit_safe and wumpus_safe
     
@@ -163,7 +160,6 @@ class KnowledgeBase:
         
         # Apply resolution until we get empty clause or no more resolutions possible
         resolved_steps = 0
-        resolutions_found = 0
         while resolved_steps < 100:  # Limit iterations to prevent infinite loops
             new_clauses = set()
             clauses_list = list(working_clauses)
@@ -175,10 +171,8 @@ class KnowledgeBase:
                     resolvent = self.resolve_clauses(clauses_list[i], clauses_list[j])
                     
                     if resolvent is not None:
-                        resolutions_found += 1
                         # Check for empty clause (contradiction found!)
                         if len(resolvent) == 0:
-                            print(f"  [prove] goal={goal} | PROVED (empty clause) after {resolutions_found} resolutions")
                             return True
                         
                         # Add new clause if not already present
@@ -193,7 +187,6 @@ class KnowledgeBase:
             resolved_steps += 1
         
         # No contradiction found, so the goal cannot be proven true
-        print(f"  [prove] goal={goal} | FAILED ({resolutions_found} resolutions, {len(working_clauses)} clauses)")
         return False
     
     def get_danger_level(self, pos: Tuple[int, int]) -> int:
@@ -235,25 +228,17 @@ class WumpusAgent:
         
         if self.current_percepts['breeze']:
             self.kb.tell_breeze(pos, adjacent)
-            print(f"[explore] ({pos[0]},{pos[1]}) BREEZE detected")
         else:
             self.kb.tell_no_breeze(pos, adjacent)
-            print(f"[explore] ({pos[0]},{pos[1]}) NO BREEZE")
         
         if self.current_percepts['stench']:
             self.kb.tell_stench(pos, adjacent)
-            print(f"[explore] ({pos[0]},{pos[1]}) STENCH detected")
         else:
             self.kb.tell_no_stench(pos, adjacent)
-            print(f"[explore] ({pos[0]},{pos[1]}) NO STENCH")
-        
-        print(f"[explore] KB now has {len(self.kb.clauses)} clauses")
     
     def step(self) -> bool:
         current_pos = self.world.agent_pos
         adjacent = self.world._get_adjacent(current_pos)
-        
-        print(f"\n[step] Agent at {current_pos}, adjacent cells: {sorted(adjacent)}")
         
         # Find safe unvisited cells
         safe_moves = []
@@ -263,19 +248,15 @@ class WumpusAgent:
                 if is_safe:
                     safe_moves.append(pos)
         
-        print(f"[step] Safe moves: {safe_moves}")
-        
         # If no safe moves, find the least dangerous unvisited cell
         if not safe_moves:
             unvisited = [pos for pos in adjacent if pos not in self.visited]
             if unvisited:
-                print(f"[step] No safe moves, using danger level heuristic")
                 # Find minimum danger level
                 min_danger = min(self.kb.get_danger_level(pos) for pos in unvisited)
                 # Get all cells with minimum danger (ties broken randomly)
                 least_dangerous = [pos for pos in unvisited if self.kb.get_danger_level(pos) == min_danger]
                 safe_moves = [random.choice(least_dangerous)]
-                print(f"[step] Least dangerous: {safe_moves[0]} (danger={min_danger})")
         
         if not safe_moves:
             return False  # No moves available
@@ -284,7 +265,6 @@ class WumpusAgent:
         
         # Randomly choose among safe moves
         new_pos = random.choice(safe_moves)
-        print(f"[step] Moving to {new_pos}")
         
         # Check if the new position is a death cell BEFORE moving
         if new_pos in self.world.pit_positions or (new_pos == self.world.wumpus_pos and self.world.wumpus_alive):
@@ -292,10 +272,8 @@ class WumpusAgent:
             self.is_alive = False
             if new_pos in self.world.pit_positions:
                 self.death_reason = "pit"
-                print(f"[step] ⚠️ DIED: PIT at {new_pos}")
             elif new_pos == self.world.wumpus_pos and self.world.wumpus_alive:
                 self.death_reason = "wumpus"
-                print(f"[step] ⚠️ DIED: WUMPUS at {new_pos}")
             return False
         
         # Safe move
