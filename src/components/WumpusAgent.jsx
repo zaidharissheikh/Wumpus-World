@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const WumpusAgent = () => {
-  const [gridSize, setGridSize] = useState(4);
+  const [gridSize, setGridSize] = useState(3);
   const [state, setState] = useState(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
