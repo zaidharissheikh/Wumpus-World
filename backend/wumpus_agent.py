@@ -365,4 +365,13 @@ def get_state():
     return jsonify(agent.get_state())
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    import os
+    import sys
+    
+    port = int(os.environ.get('PORT', 5000))
+    
+    # Also support --port argument if provided
+    if len(sys.argv) > 1 and sys.argv[1] == '--port':
+        port = int(sys.argv[2])
+    
+    app.run(host='0.0.0.0', debug=False, port=port)
