@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const WumpusAgent = () => {
   const [gridSize, setGridSize] = useState(3);
@@ -9,7 +9,7 @@ const WumpusAgent = () => {
   // Use environment variable, fallback to localhost for development
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-  const initGame = async () => {
+  const initGame = useCallback(async () => {
     try {
       const response = await fetch(`${API_URL}/init`, {
         method: 'POST',
@@ -23,9 +23,9 @@ const WumpusAgent = () => {
     } catch (error) {
       console.error('Init error:', error);
     }
-  };
+  }, [gridSize, API_URL]);
 
-  const takeStep = async () => {
+  const takeStep = useCallback(async () => {
     // Don't step if agent is already dead or won
     if (state && (!state.is_alive || state.is_won)) {
       setIsRunning(false);
@@ -46,7 +46,7 @@ const WumpusAgent = () => {
       console.error('Step error:', error);
       setIsRunning(false);
     }
-  };
+  }, [state, API_URL]);
 
   useEffect(() => {
     if (!isRunning) return;
