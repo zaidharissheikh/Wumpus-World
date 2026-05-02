@@ -333,17 +333,20 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app)
 agent = None
 
 @app.route('/init', methods=['POST'])
 def init():
     global agent
-    data = request.json
-    rows = data.get('rows', 4)
-    cols = data.get('cols', 4)
-    agent = WumpusAgent(rows, cols)
-    return jsonify(agent.get_state())
+    try:
+        data = request.json
+        rows = data.get('rows', 4)
+        cols = data.get('cols', 4)
+        agent = WumpusAgent(rows, cols)
+        return jsonify(agent.get_state())
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/step', methods=['POST'])
 def step():
