@@ -331,10 +331,15 @@ class WumpusAgent:
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+import traceback
 
 app = Flask(__name__)
 CORS(app)
 agent = None
+
+@app.before_request
+def before_request():
+    print(f"[{request.method}] {request.path}", flush=True)
 
 @app.route('/init', methods=['POST'])
 def init():

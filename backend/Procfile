@@ -1,1 +1,1 @@
-web: gunicorn wumpus_agent:app
+web: gunicorn --bind 0.0.0.0:$PORT wumpus_agent:app
